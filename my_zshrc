@@ -1,0 +1,163 @@
+# zshrc
+# Author: phi
+# Version: 20160219
+
+# Reference 1. Z-Shell Frequently-Asked Questions:
+#   http://zsh.sourceforge.net/FAQ/zshfaq.html
+# Reference 2. ZSH Documentation
+# Reference 3. Zsh - https://wiki.archlinux.org/index.php/Zsh
+
+##### History #####
+HISTFILE=~/.histfile
+HISTSIZE=999999
+SAVEHIST=999999
+
+# Preventing duplicate lines in the history
+setopt hist_ignore_all_dups
+
+# A useful trick to prevent particular entries from being recorded into a
+# history by preceding them with at least one space.
+setopt hist_ignore_space
+
+##### Variables and aliases #####
+export EDITOR="vim"
+export PAGER="vimpager"
+alias less=$PAGER
+alias zless=$PAGER
+alias ll='ls -alh --color=auto'
+alias ls='ls -Fh --color=auto'
+
+# [1] 3.5: How do I get the Meta key to work on my xterm?
+# warning: 'bindkey -m' disables multibyte support
+bindkey -m 2>/dev/null
+# vi mode
+bindkey -v
+
+autoload -Uz compinit promptinit
+compinit
+promptinit
+
+# Prompts:
+# 	run `prompt -h' to get the additional information
+#
+# This will set the default prompt
+prompt bigfade red
+
+if [ -f /home/phi/.my-zsh/zsh-git-prompt/zshrc.sh ];
+then
+	source /home/phi/.my-zsh/zsh-git-prompt/zshrc.sh
+	RPROMPT='$(git_super_status)'
+else
+	echo '~/.my-zsh/zsh-git-prompt/zshrc.sh does not exists'
+	echo 'this zshrc makes use of zsh-git-prompt project hosted on github'
+fi
+
+# Configuring $PATH
+# http://zsh.sourceforge.net/Guide/zshguide02.html#l24
+# typeset -U path
+# path=(~/an_array ~/like_this)
+
+zstyle :compinstall filename '/home/phi/.zshrc'
+# For autocompletion with an arrow-key driven interface
+zstyle ':completion:*' menu select
+# Persistent rehash
+zstyle ':completion:*' rehash true
+# Change default completion style
+# https://wiki.gentoo.org/wiki/Zsh/Guide
+zstyle ':completion:*:descriptions' format '%U%B%d%b%u'
+zstyle ':completion:*:warnings' format '%BSorry, no matches for: %d%b'
+
+# Command correction
+setopt correctall
+
+# For autocompletion of command line switches for aliases
+setopt completealiases
+
+# History search
+# in viins & vicmd history-incremental-search-backward is unbound
+bindkey -M viins '^r' history-incremental-search-backward
+bindkey -M vicmd '^r' history-incremental-search-backward
+
+# Colors
+# Add autoload -U colors && colors before PROMPT= in .zshrc to use them. 
+
+###### Dirstack #####
+# Zsh can be configured to remember the DIRSTACKSIZE last visited folders.
+DIRSTACKFILE="$HOME/.cache/zsh/dirs"
+if [[ -f $DIRSTACKFILE ]] && [[ $#dirstack -eq 0 ]]; then
+	dirstack=( ${(f)"$(< $DIRSTACKFILE)"} )
+	[[ -d $dirstack[1] ]] && cd $dirstack[1]
+fi
+chpwd() {
+	print -l $PWD ${(u)dirstack} >$DIRSTACKFILE
+}
+
+DIRSTACKSIZE=20
+
+setopt autopushd pushdsilent pushdtohome
+
+# Remove duplicate entries
+setopt pushdignoredups
+
+# This reverts the +/- operators.
+setopt pushdminus
+###### End Dirstack #####
+
+##### Help command #####
+autoload -U run-help
+autoload run-help-git
+autoload run-help-svn
+autoload run-help-svk
+#unalias run-help
+#alias help=run-help
+
+# Persistent rehash
+setopt nohashdirs
+
+# Miscellaneous settings
+
+# avoid tedious typing of cd command
+# setopt autocd
+
+# See also: http://zshwiki.org/home/zle/bindkeys
+# create a zkbd compatible hash;
+# to add other keys to this hash, see: man 5 terminfo
+typeset -g -A key
+key[Home]=${terminfo[khome]}
+key[End]=${terminfo[kend]}
+key[Insert]=${terminfo[kich1]}
+key[Delete]=${terminfo[kdch1]}
+key[Up]=${terminfo[kcuu1]}
+key[Down]=${terminfo[kcud1]}
+key[Left]=${terminfo[kcub1]}
+key[Right]=${terminfo[kcuf1]}
+key[PageUp]=${terminfo[kpp]}
+key[PageDown]=${terminfo[knp]}
+
+[[ -n "${key[Home]}"    ]]  && bindkey  "${key[Home]}"    beginning-of-line
+[[ -n "${key[End]}"     ]]  && bindkey  "${key[End]}"     end-of-line
+[[ -n "${key[Insert]}"  ]]  && bindkey  "${key[Insert]}"  overwrite-mode
+[[ -n "${key[Delete]}"  ]]  && bindkey  "${key[Delete]}"  delete-char
+[[ -n "${key[Up]}"      ]]  && bindkey  "${key[Up]}"      up-line-or-history
+[[ -n "${key[Down]}"    ]]  && bindkey  "${key[Down]}"    down-line-or-history
+[[ -n "${key[Left]}"    ]]  && bindkey  "${key[Left]}"    backward-char
+[[ -n "${key[Right]}"   ]]  && bindkey  "${key[Right]}"   forward-char
+
+# Finally, make sure the terminal is in application mode, when zle is
+# active. Only then are the values from $terminfo valid.
+function zle-line-init () {
+	if (( ${+terminfo[smkx]} )); then
+			echoti smkx
+	fi
+}
+function zle-line-finish () {
+	if (( ${+terminfo[rmkx]} )); then
+			echoti rmkx
+	fi
+}
+zle -N zle-line-init
+zle -N zle-line-finish  
+
+# config gpg-agent
+GPG_TTY=$(tty)
+export GPG_TTY

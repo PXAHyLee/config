@@ -1,0 +1,294 @@
+" check if vundle is installed
+let vundle_readme=expand('~/.vim/bundle/Vundle.vim/README.md')
+if !filereadable(vundle_readme)
+    if !executable("git")
+        let Msg="Install the git in order to install Vundle!"
+        echohl WarningMsg | echo Msg | echohl None
+        echo ""
+        echo "Press any key to exit..."
+        let c = getchar()
+        :quit
+    endif
+    echo "Installing Vundle.."
+    echo ""
+    silent !mkdir -p ~/.vim/bundle
+    " put the escaping \ at the beginning of the line
+    " see :help line-continuation
+    silent !git clone
+        \ https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
+endif
+
+
+set shell=bash
+set nocompatible    " be iMproved, required
+filetype off        " required
+
+" set the runtime path to include Vundle and initialize
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
+
+" PluginList
+Plugin 'VundleVim/Vundle.vim' " let Vundle manage Vundle, required
+Plugin 'scrooloose/nerdtree'
+Plugin 'Xuyuanp/nerdtree-git-plugin'
+Plugin 'taglist.vim'
+Plugin 'Rip-Rip/clang_complete'
+Plugin 'tomtom/tcomment_vim'
+Plugin 'mhinz/vim-startify'
+Plugin 'scrooloose/syntastic'
+Plugin 'wincent/command-t'
+
+" ColorScheme
+Plugin 'ScrollColors'
+Plugin 'jnurmine/Zenburn'
+Plugin '256-grayvim'
+" Plugin 'altercation/vim-colors-solarized'
+" Plugin 'chriskempson/base16-vim'
+" Plugin 'freya'
+" Plugin 'tomasr/molokai'
+" Plugin 'Colour-Sampler-Pack'
+" Plugin 'mimicpak'
+" ColorScheme
+
+" Syntax Highlight
+Plugin 'brgmnn/vim-opencl'
+Plugin 'neovimhaskell/haskell-vim'
+Plugin 'derekwyatt/vim-scala'
+" Syntax Highlight
+
+" Other plugins
+" eagletmt/ghcmod-vim requires vimproc.vim
+" Plugin 'Shougo/vimproc.vim'
+" Plugin 'eagletmt/ghcmod-vim'
+" let g:ghcmod_ghc_options = ['-XDataKinds']
+"
+" Plugin 'godlygeek/tabular'
+" Plugin 'plasticboy/vim-markdown'
+" Other plugins
+
+
+
+" Option for every plugin
+
+" NERDTree
+" <F5> The NERD Tree
+let NERDTreeWinPos='left'
+let NERDTreeWinSize=40
+let NERDTreeChDirMode=1
+map <F5> :NERDTreeToggle<CR>
+autocmd bufenter * call s:CloseVimIfOnlyNERDTreeLeft()
+function! s:CloseVimIfOnlyNERDTreeLeft()
+	if winnr("$") == 1
+            \ && exists("b:NERDTreeType")
+            \ && b:NERDTreeType == "primary"
+		quit
+	endif
+endfunction
+" NERDTree
+
+" Taglist
+" <F3> Taglist
+let Tlist_Auto_Open = 0
+let Tlist_Auto_Update = 1
+let Tlist_Exit_OnlyWindow = 1
+let Tlist_Compact_Format = 1
+let Tlist_GainFocus_On_ToggleOpen = 1
+map <silent> <F3> :TlistToggle<CR>
+" Taglist
+
+" clang_complete
+" g:clang_use_library: Default 1
+let g:clang_complete_copen=1
+let g:clang_hl_errors=1
+" g:clang_periodic_quickfix: Do g:ClangUpdateQuickFix() periodically
+let g:clang_periodic_quickfix=0
+let g:clang_snippets=1
+" g:clang_snippets_engine: Default is clang_complete
+let g:clang_user_options='-std=c++11'
+nnoremap <Leader>q :call g:ClangUpdateQuickFix()<CR>
+" clang_complete
+
+" syntastic
+" :SyntasticInfo for giving some useful information
+let g:syntastic_cpp_compiler = 'clang++'
+let g:syntastic_cpp_compiler_options = '-std=c++11'
+
+let g:syntastic_c_compiler = 'clang'
+let g:syntastic_c_clang_check_args = '-std=c11'
+
+let g:syntastic_python_python_exe = 'python3'
+let g:syntastic_python_checkers = ['python3-flake8']
+let g:syntastic_check_on_wq = 1
+" syntastic
+
+" command-t
+if !has('ruby')
+    let Msg="The Ruby interface ruby doesn't support. The command-t is disable."
+    echohl WarningMsg | echo Msg | echohl None
+else
+    " check if ruby works
+    silent execute 'ruby puts "#{RUBY_VERSION}-p#{RUBY_PATCHLEVEL}"'
+    if !filereadable(expand('~/.vim/bundle/command-t/ruby/command-t/ext.so'))
+        let Msg="See *command-t-compile* to compile command-t"
+        echohl WarningMsg | echo Msg | echohl None
+        echo ""
+        echo "Press any key to continue..."
+        let c = getchar()
+    endif
+endif
+" command-t
+" Keep Plugin commands between vundle#begin/end.
+" All of your Plugins must be added before the following line
+call vundle#end()
+filetype plugin indent on    " required
+"
+" Brief help
+" :PluginList       - lists configured plugins
+" :PluginInstall    - installs plugins; append `!` to update or just
+"                     :PluginUpdate
+" :PluginSearch foo - searches for foo; append `!` to refresh local cache
+" :PluginClean      - confirms removal of unused plugins;
+"                     append `!` to auto-approve removal
+"
+" see :h vundle for more details or wiki for FAQ
+" Put your non-Plugin stuff after this line
+
+syntax on
+" See Also: http://vim.wikia.com/wiki/Working_with_Unicode
+" **VIM set encoding and fileencoding utf-8** @ Stackoverflow
+if has("multi_byte")
+    if &termencoding == ""
+        let &termencoding = &encoding
+    endif
+    set encoding=utf-8
+    setglobal fileencoding=utf-8
+    set fileencodings=ucs-bom,utf-8,big5,gbk,latin1
+endif
+
+" General Settings
+set t_Co=256
+set bg=dark
+silent! colorscheme desert "256-grayvim
+set colorcolumn=80
+
+" http://vim.wikia.com/wiki/Remove_unwanted_spaces
+" <F2>: Remove unwanted spaces
+:nnoremap <silent> <F2> :let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar>:nohl<CR>
+
+" expandtab: insert space characters whenever the tab key is pressed
+set expandtab
+
+" the # of space characters that will be inserted when the tab key is pressed
+set tabstop=4
+
+" A tab produces a 4-space indentation
+"
+" Number of spaces that a <Tab> counts for while performing editing
+" operations, like inserting a <Tab> or using <BS>.
+set softtabstop=4
+
+" shiftwidth: change the number of space characters inserted for indentation
+set shiftwidth=4
+set fdm=syntax
+set ai
+set nu
+set hlsearch
+set sessionoptions-=curdir
+set sessionoptions+=sesdir
+set showcmd
+set autoread
+set ruler
+set wildmenu
+set showmatch
+set completeopt=menu,longest
+
+au BufNewFile,BufFilePre,BufRead *.tex setlocal spell spelllang=en_us
+
+au BufNewFile,BufFilePre,BufRead *.md set filetype=markdown
+autocmd Filetype gitcommit setlocal spell textwidth=72
+
+" tabline & statusline
+" See also: http://vim.wikia.com/wiki/Show_tab_number_in_your_tab_line
+" https://github.com/mkitt/tabline.vim
+set tabline=%!MyTabLine()
+
+function! Tabline()
+    let s = ''
+    for i in range(tabpagenr('$'))
+        let tab = i + 1
+        let winnr = tabpagewinnr(tab)
+        let buflist = tabpagebuflist(tab)
+        let bufnr = buflist[winnr - 1]
+        let bufname = bufname(bufnr)
+        let bufmodified = getbufvar(bufnr, "&mod")
+
+        let s .= '%' . tab . 'T'
+        let s .= (tab == tabpagenr() ? '%#TabLineSel#' : '%#TabLine#')
+        let s .= ' ' . tab .':'
+        let s .= (bufname != '' ? ' '. fnamemodify(bufname, ':t') . ' ' : '[No Name] ')
+
+        if bufmodified
+            let s .= '[+] '
+        endif
+    endfor
+
+    let s .= '%#TabLineFill#'
+    return s
+endfunction
+set tabline=%!Tabline()
+set laststatus=2
+set statusline=[%n]\ %<%F\ \ \ [%M%R%H%W%Y][%{&ff}]\ \ %=\ line:%l/%L\ col:%c\ \ \ %p%%
+" tabline & statusline
+
+" ctags
+" ;~ suffix directs vim to do an upward search from the directory containing
+" tags up to the stop directory, in this case ~.
+" See also: http://goo.gl/m4GSF3, http://goo.gl/dV7kqj
+" set tags=./tags,tags
+"
+" the dot concatenates the two strings
+" for a in split(glob('/home/phi/vim-ctags/*'), '\n')
+"     exe 'set tags+=' . a
+" endfor
+" ctags
+
+" auto reload .vimrc
+augroup reload_vimrc " {
+    autocmd!
+    autocmd BufWritePost $MYVIMRC source $MYVIMRC
+augroup END " }
+
+" The following are taken from llvm/utils/vim
+"
+"===== LLVM coding guidelines conformance for VIM =====
+" $Revision: 176235 $
+
+" LLVM Makefiles can have names such as Makefile.rules or TEST.nightly.Makefile,
+" so it's important to categorize them as such.
+augroup filetype
+  au! BufRead,BufNewFile *Makefile* set filetype=make
+augroup END
+
+" In Makefiles, don't expand tabs to spaces, since we need the actual tabs
+autocmd FileType make set noexpandtab
+
+" Enable syntax highlighting for LLVM files. To use, copy
+" utils/vim/llvm.vim to ~/.vim/syntax .
+augroup filetype
+  au! BufRead,BufNewFile *.ll     set filetype=llvm
+augroup END
+
+" Enable syntax highlighting for tablegen files. To use, copy
+" utils/vim/tablegen.vim to ~/.vim/syntax .
+augroup filetype
+  au! BufRead,BufNewFile *.td     set filetype=tablegen
+augroup END
+
+" Enable syntax highlighting for reStructuredText files. To use, copy
+" rest.vim (http://www.vim.org/scripts/script.php?script_id=973)
+" to ~/.vim/syntax .
+augroup filetype
+ au! BufRead,BufNewFile *.rst     set filetype=rest
+augroup END
+
+"===== End LLVM coding guidelines conformance for VIM =====
