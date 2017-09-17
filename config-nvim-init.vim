@@ -19,7 +19,6 @@ endif
 
 " Plugins directory: $XDG_DATA_HOME/nvim/site/plugged
 call plug#begin('~/.local/share/nvim/site/plugged')
-Plug 'tpope/vim-sensible'
 Plug 'tpope/vim-fugitive'
 Plug 'taglist.vim'
 
@@ -74,11 +73,6 @@ Plug 'itchyny/landscape.vim'
 call plug#end()
 
 " Option for every plugin
-
-" vim-sensible
-" Note: it has a line like |inoremap <C-U> <C-G>u<C-U>|, which is the
-" resolution of |Recover from accidental Ctrl-U|
-runtime! plugin/sensible.vim
 
 " taglist
 " <F3> Taglist
@@ -208,8 +202,8 @@ else
     endif
 endif
 
-"General options
-" This is set by vim-sensible set laststatus=2
+" General options
+set laststatus=2
 set showtabline=2
 set guioptions-=e
 
@@ -272,13 +266,11 @@ set completeopt+=longest
 
 au BufNewFile,BufFilePre,BufRead *.tex setlocal spell spelllang=en_us
 
-au BufNewFile,BufFilePre,BufRead *.md set filetype=markdown
 autocmd Filetype gitcommit setlocal spell textwidth=72
 
 " formatoptions (default: tcqj)
 " set fo? to see the current formatoptions => ex: jcroql.
 " When the 'paste' option is on, no formatting is done
-set fo-=l
 
 " Some ftplugin would change the formatoptions after the above set command
 " http://stackoverflow.com/questions/16030639/vim-formatoptions-or#16032415
@@ -363,7 +355,20 @@ augroup filetype
   au! BufRead,BufNewFile *Makefile* set filetype=make
 augroup END
 
+augroup markdown
+  au!
+  au BufWinEnter,BufNewFile,BufFilePre,BufRead *.md set filetype=markdown
+augroup END
+
+
 " In Makefiles, don't expand tabs to spaces, since we need the actual tabs
 autocmd FileType make set noexpandtab
 
 "===== End LLVM coding guidelines conformance for VIM =====
+
+function! SetMarkdownOptions()
+  call clearmatches()
+  setlocal textwidth=0
+endfunction
+
+autocmd FileType markdown call SetMarkdownOptions()
