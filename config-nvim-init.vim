@@ -178,11 +178,17 @@ let g:syntastic_aggregate_errors = 1
 let g:syntastic_cpp_compiler = 'clang++'
 let g:syntastic_cpp_compiler_options = '-std=c++11'
 
+" Enable multiple checkers
+let g:syntastic_cpp_checkers = ['gcc', 'cpplint']
+let g:syntastic_cpp_cpplint_exec = '~/script/cpplint.py'
+let g:syntastic_cpp_cpplint_args = "--verbose=3 --filter=-legal/copyright"
+
 let g:syntastic_c_compiler = 'clang'
 let g:syntastic_c_clang_check_args = '-std=c11'
 
 let g:syntastic_python_python_exe = 'python3'
 let g:syntastic_python_checkers = ['python3-flake8']
+
 
 " ListToggle
 
